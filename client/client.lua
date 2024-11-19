@@ -15,7 +15,7 @@ end
 local currentSpeed = nil
 local isSpeedChanged = false
 
-RegisterCommand("walkspeed", function()
+local function WalkSpeedMenu()
     VORPMenu.CloseAll()
 
     local walkSpeedMenu = {
@@ -24,14 +24,14 @@ RegisterCommand("walkspeed", function()
         {label = "Speed 0.4", value = 0.4}, -- Default 0.4
         {label = "Speed 0.6", value = 0.6}, -- Default 0.6
         {label = "Speed 0.8", value = 0.8} -- Default 0.8
-		-- See above and you can add more (Max value = 3.0) --
+        -- See above and you can add more (Max value = 3.0) --
     }
 
     VORPMenu.Open("default", GetCurrentResourceName(), "zeus_walkspeed_menu",
         {
             title = "Change Walk Speed",
             subtext = "Select a speed:",
-            align = "top-left",
+            align = Config.MenuAlign,
             elements = walkSpeedMenu
         },
         function(data, menu)
@@ -49,18 +49,33 @@ RegisterCommand("walkspeed", function()
             menu.close()
         end
     )
-end)
+end
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
-        Citizen.Wait(0)
-        
+        Wait(0)
+
         if isSpeedChanged then
             if currentSpeed then
                 SetPlayerSpeed(currentSpeed)
             else
                 --DONT TOUCH
             end
+        end
+    end
+end)
+
+RegisterCommand(Config.Command, function()
+    if Config.OpenMenuWithCommand then
+        WalkSpeedMenu()
+    end
+end, false)
+
+CreateThread(function()
+    while Config.OpenMenuWithKey do
+        Wait(0)
+        if IsControlJustPressed(0, Config.Key1) and IsControlJustPressed(0, Config.Key2) then
+            WalkSpeedMenu()
         end
     end
 end)
